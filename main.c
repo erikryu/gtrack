@@ -1,4 +1,4 @@
- #include <stdio.h>
+#include <stdio.h>
 #include <string.h>
 
 #define MAXNAMESIZE 20
@@ -10,6 +10,7 @@ typedef struct {
 } Exercise;
 
 typedef struct {
+    int daynum;
     int exercise_num;
     Exercise exercises[MAXEXERCISENUM];
 } TrainingDay;
@@ -73,17 +74,46 @@ int addTrainingDay(TrainingDay *td)
     return 0;
 }
 
-// Tudo funcionando legal, falta implementar a função de listagem de exercícios
-// Também implementar o registro em arquivo
-int main(void)
+int listExercises(TrainingDay *td)
 {
     int i;
+    for (i=0; i<td->exercise_num; ++i)
+    {
+        printf("%s - %d\n", td->exercises[i].name, td->exercises[i].maxw);
+    }
+
+    return 0;
+}
+
+int write(FILE *fp, TrainingDay *td)
+{
+    int error = fopen_s(&fp, "example.txt", "w");
+    fprintf(fp, "Número");
+    fclose(fp);
+    return 0;
+}
+
+// Implementar o registro em arquivo
+// Armazenar hora e data dentro da estrutura TrainingDay
+//
+// Registro em arquivo pode ser:
+//
+// day_num = x
+// Hora = x.y.z(hr - min - sec) a.b.c(day - month - year)
+// nome do exercício - carga máxima
+
+int main(void)
+{
+    FILE *filepoint;
     TrainingDay tday = {0};
 
-    addTrainingDay(&tday);
+    int error = fopen_s(&filepoint, "example.txt", "w");
 
-    for (i = 0; i < tday.exercise_num; ++i)
-    {
-        printf("%s - %d\n", tday.exercises[i].name, tday.exercises[i].maxw);
-    }
+    addTrainingDay(&tday);
+    listExercises(&tday);
+
+    fprintf(filepoint, "O nome do exercício é %s", tday.exercises[0].name);
+    fclose(filepoint);
+
+    return 0;
 }
