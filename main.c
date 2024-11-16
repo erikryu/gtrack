@@ -1,7 +1,8 @@
-#include <stdio.h>
+ #include <stdio.h>
 #include <string.h>
 
 #define MAXNAMESIZE 20
+#define MAXEXERCISENUM 10
 
 typedef struct {
     int maxw;
@@ -10,7 +11,7 @@ typedef struct {
 
 typedef struct {
     int exercise_num;
-    Exercise exercises[2];
+    Exercise exercises[MAXEXERCISENUM];
 } TrainingDay;
 
 int txt(char *str, int lim)
@@ -30,23 +31,59 @@ int txt(char *str, int lim)
 int addExercise(Exercise *ex)
 {
     printf("Digite o nome do exercício: ");
-    txt(ex->name, MAXNAMESIZE);
+    if (txt(ex->name, MAXNAMESIZE)==-1)
+    {
+        printf("Algo de errado não está certo ao registrar exercícios.");
+        return -1;
+    }
 
     printf("Digite a carga máxima do exercício: ");
-    scanf_s("%d", &ex->maxw);
+    if (!scanf_s("%d", &ex->maxw))
+    {
+        printf("Algo de errado não está certo ao salvar cargas.");
+        return -1;
+    }
 
     while (getchar()!='\n');
 
     return 0;
 }
 
+int addTrainingDay(TrainingDay *td)
+{
+    int i;
+
+    printf("Digite a quantidade de exercícios feitos: ");
+    if (scanf_s("%d", &td->exercise_num) != 1 || td->exercise_num < 1 || td->exercise_num > MAXEXERCISENUM)
+    {
+        printf("Número de exercícios acima do esperado(20)");
+        return -1;
+    }
+
+    while(getchar()!='\n');
+
+    for (i = 0; i < td->exercise_num; ++i)
+    {
+        if(addExercise(&td->exercises[i])==-1)
+        {
+            printf("Erro ao registrar exercício %d\n", i + 1);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+// Tudo funcionando legal, falta implementar a função de listagem de exercícios
+// Também implementar o registro em arquivo
 int main(void)
 {
+    int i;
     TrainingDay tday = {0};
 
-    addExercise(&tday.exercises[0]);
-    addExercise(&tday.exercises[1]);
+    addTrainingDay(&tday);
 
-    printf("%s %d\n", tday.exercises[0].name, tday.exercises[0].maxw);
-    printf("%s %d", tday.exercises[1].name, tday.exercises[1].maxw);
+    for (i = 0; i < tday.exercise_num; ++i)
+    {
+        printf("%s - %d\n", tday.exercises[i].name, tday.exercises[i].maxw);
+    }
 }
