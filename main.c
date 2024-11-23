@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #define MAXNAMESIZE 20
 #define MAXEXERCISENUM 10
@@ -87,9 +88,25 @@ int listExercises(TrainingDay *td)
 
 int write(FILE *fp, TrainingDay *td)
 {
-    int error = fopen_s(&fp, "example.txt", "w");
-    fprintf(fp, "Número");
+    int i;
+
+    time_t t;
+    struct tm tm;
+
+    time(&t);
+    localtime_s(&tm, &t);
+
+    char dt[50];
+
+    strftime(dt, sizeof(dt), "%c", &tm);
+    fprintf(fp, "%s\n", dt);
+
+    for (i = 0; i < td->exercise_num; ++i)
+    {
+        fprintf(fp, "%d: %s - %dkg\n",i + 1, td->exercises[i].name, td->exercises[i].maxw);
+    }
     fclose(fp);
+
     return 0;
 }
 
@@ -112,8 +129,7 @@ int main(void)
     addTrainingDay(&tday);
     listExercises(&tday);
 
-    fprintf(filepoint, "O nome do exercício é %s", tday.exercises[0].name);
-    fclose(filepoint);
+    write(filepoint, &tday);
 
     return 0;
 }
