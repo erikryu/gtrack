@@ -2,14 +2,17 @@
 #include <string.h>
 #include <time.h>
 
+//Define os limites de tamanho de nome de arquivo e de número de exercícios
 #define MAXNAMESIZE 20
 #define MAXEXERCISENUM 10
 
+//Define a estrutura básica de um exercício
 typedef struct {
     int maxw;
     char name[MAXNAMESIZE];
 } Exercise;
 
+//Estrutura de um dia de treino, número de exercícios e quais exercícios foram feitos
 typedef struct {
     int daynum;
     int exercise_num;
@@ -18,6 +21,7 @@ typedef struct {
 
 int txt(char *str, int lim)
 {
+    //Função de entrada de texto
     if (!fgets(str, lim, stdin)) {
         return -1;
     }
@@ -32,6 +36,7 @@ int txt(char *str, int lim)
 
 int addExercise(Exercise *ex)
 {
+    //Função que adiciona grava exercícios
     printf("Digite o nome do exercício: ");
     if (txt(ex->name, MAXNAMESIZE)==-1)
     {
@@ -53,6 +58,7 @@ int addExercise(Exercise *ex)
 
 int addTrainingDay(TrainingDay *td)
 {
+    //Utiliza da gravação de exercícios para gravar todos os exercícios de um dia de treino
     int i;
 
     printf("Digite a quantidade de exercícios feitos: ");
@@ -77,6 +83,7 @@ int addTrainingDay(TrainingDay *td)
 
 int listExercises(TrainingDay *td)
 {
+    //Lista exercícios do dia de treino
     int i;
     for (i=0; i<td->exercise_num; ++i)
     {
@@ -88,6 +95,7 @@ int listExercises(TrainingDay *td)
 
 int write(FILE *fp, TrainingDay *td)
 {
+    //Escreve o dia de treino dentro de um arquivo junto com a data e hora em que foi escrito
     int i;
 
     time_t t;
@@ -97,39 +105,35 @@ int write(FILE *fp, TrainingDay *td)
     localtime_s(&tm, &t);
 
     char dt[50];
+    int error = fopen_s(&fp, "example.txt", "a");
 
-    strftime(dt, sizeof(dt), "%c", &tm);
-    fprintf(fp, "%s\n", dt);
+    if (error==0) {
+        strftime(dt, sizeof(dt), "%c", &tm);
+        fprintf(fp, "%s\n", dt);
 
-    for (i = 0; i < td->exercise_num; ++i)
-    {
-        fprintf(fp, "%d: %s - %dkg\n",i + 1, td->exercises[i].name, td->exercises[i].maxw);
-    }
-    fclose(fp);
+        for (i = 0; i < td->exercise_num; ++i)
+        {
+            fprintf(fp, "%d: %s - %dkg\n",i + 1, td->exercises[i].name, td->exercises[i].maxw);
+        }
+        fprintf(fp, "\n");
+        fclose(fp);
 
     return 0;
+    } else return -1;
 }
-
-// Implementar o registro em arquivo
-// Armazenar hora e data dentro da estrutura TrainingDay
-//
-// Registro em arquivo pode ser:
-//
-// day_num = x
-// Hora = x.y.z(hr - min - sec) a.b.c(day - month - year)
-// nome do exercício - carga máxima
 
 int main(void)
 {
-    FILE *filepoint;
+    FILE *filepoint = NULL;
     TrainingDay tday = {0};
 
-    int error = fopen_s(&filepoint, "example.txt", "w");
+    int r;
 
     addTrainingDay(&tday);
     listExercises(&tday);
 
-    write(filepoint, &tday);
+    r = write(filepoint, &tday);
+    printf("%d", r);
 
     return 0;
 }
